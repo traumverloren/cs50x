@@ -1,0 +1,81 @@
+0.  How many different colors does each format support?
+  JPG: 16.7 million colors (24-bit)
+  GIF: 256 colors (8-bit)
+  PNG: 8-bit, up to 24-bit
+  BMP: 32-bit, > 4 billion.
+
+1.  Which of the formats supports animation?
+    GIF
+    
+2.  What’s the difference between lossy and lossless compression?
+    With lossless compression, every single bit of data that was originally 
+    in the file remains after the file is uncompressed. All of the information is completely restored. 
+
+    On the other hand, lossy compression reduces a file by permanently eliminating 
+    certain information, especially redundant information. 
+    When the file is uncompressed, only a part of the original information is still there.
+
+3.  Which of these formats is lossy-compressed?
+    JPEG
+    
+4.  What happens, technically speaking, when a file is deleted on a FAT file system?
+    In most cases, deleting a file most often merely rewrites the metadata that pointed to the file, but
+    leaves the disk blocks containing the file’s contents intact. 
+  
+5.  What can someone like you do to ensure (with high probability) that files you delete cannot be recovered?
+    Overwrite multiple times with zeros/NUL or use a sanitizer tool
+
+6.  What’s stdint.h?
+    The <stdint.h> header shall declare sets of integer types having specified widths, 
+    and shall define corresponding sets of macros. It shall also define macros that 
+    specify limits of integer types corresponding to types defined in other standard headers.
+    
+7.  What’s the point of using uint8_t, uint32_t, int32_t, and uint16_t in a program?
+    These functions specify the exact width (amount of space you want in a file) of integers.
+
+8.  How many bytes is a BYTE, a DWORD, a LONG, and a WORD, respectively?
+    BYTE = 8 bits = 1 byte
+    DWORD= 32 bits = 4 bytes
+    LONG = signed 32 bits = 4 bytes
+    WORD = 16 bits = 2 bytes
+
+9.  What (in ASCII, decimal, or hexadecimal) must the first two bytes of any BMP file be?
+    (Leading bytes used to identify file formats (with high probability) are generally called "magic numbers.)"
+    hexadecimal: 0x42 0x4D
+    ASCII: BM
+    This value is stored in "bfType".
+    
+10. What’s the difference between bfSize and biSize?
+    bfSize should store the size of the whole BMP file — the size of the BMP image + the size of the headers.
+    biSizeImage should store the size of the BMP image — the size of the RGBTRIPLEs + the total size of the padding.
+
+11. What does it mean if biHeight is negative?
+    If biHeight is positive, the bitmap is a bottom-up DIB and its origin is the lower-left corner. 
+    If biHeight is negative, the bitmap is a top-down DIB and its origin is the upper-left corner.
+    
+12. What field in BITMAPINFOHEADER specifies the BMP’s color depth (i.e., bits per pixel)?
+    The number of bits-per-pixel. The biBitCount member of the BITMAPINFOHEADER structure determines the number of bits that define each pixel and the maximum number of colors in the bitmap. This member must be one of the following values.
+    
+13. Why might fopen return NULL in copy.c:37?
+    fopen will return null if it cannot open the file. 
+    This can happen if there is not enough memory or the file cannot be found.
+
+14. Why is the third argument to `fread` always 1 in our code?
+    # of times it will read our initial file. Only 1 file, so we only want 1 read.
+    
+15. What value does copy.c:70 assign padding if bi.biWidth is 3?
+    (Note: RGBTRIPLE is 3 bytes)
+    int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    int padding = (4 - (3*3)%4) % 4 = 3
+
+16. What does fseek do?
+    Use fseek when you want to change the offset of the file pointer fp. 
+    Normally, when reading in from a file, the pointer continues 
+    in one direction, from the start of the file to the end. 
+    fseek, however, allows you to change the location of the file pointer.
+    
+17. What is SEEK_CUR?
+    If you want to change the location of the pointer fp from its 
+    current location, set from_where to SEEK_CUR.
+    
+18. TODO
