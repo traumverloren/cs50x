@@ -80,7 +80,72 @@ int main(int argc, char* argv[])
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+            
+            
+            if (triple.rgbtRed == 255 && triple.rgbtGreen == 0 && triple.rgbtBlue == 0)
+            {
+                triple.rgbtRed = 255;
+                triple.rgbtBlue = 255;
+                triple.rgbtGreen = 255;
+            }
+            
+            else if (triple.rgbtRed > 0 && triple.rgbtRed < 31)
+            {
+                triple.rgbtRed = 30;
+                triple.rgbtBlue = 30;
+                triple.rgbtGreen = 30;
 
+            }
+            
+            else if (triple.rgbtRed > 30 && triple.rgbtRed < 51)
+            {
+                triple.rgbtRed = 45;
+                triple.rgbtBlue = 45;
+                triple.rgbtGreen = 45;
+
+            }
+            
+            else if (triple.rgbtRed > 51 && triple.rgbtRed < 101)
+            {
+                triple.rgbtRed = 75;
+                triple.rgbtBlue = 75;
+                triple.rgbtGreen = 75;
+
+            }
+            
+            else if (triple.rgbtRed > 101 && triple.rgbtRed < 151)
+            {
+                triple.rgbtRed = 125;
+                triple.rgbtBlue = 125;
+                triple.rgbtGreen = 125;
+
+            }
+            
+            else if (triple.rgbtRed > 151 && triple.rgbtRed < 201)
+            {
+                triple.rgbtRed = 175;
+                triple.rgbtBlue = 175;
+                triple.rgbtGreen = 175;
+
+            }
+            
+            else if (triple.rgbtRed > 201 && triple.rgbtRed < 226)
+            {
+                triple.rgbtRed = 215;
+                triple.rgbtBlue = 215;
+                triple.rgbtGreen = 215;
+
+            }
+            
+                        
+            else if (triple.rgbtRed > 225 && triple.rgbtRed < 254)
+            {
+                triple.rgbtRed = 245;
+                triple.rgbtBlue = 245;
+                triple.rgbtGreen = 245;
+
+            }
+            
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
