@@ -36,30 +36,38 @@ int main(void)
     // read 512 bytes until EOF reached
     while(!feof(file))
     {
+      printf("sizeof(BLOCK_SIZE) = %lu\n", sizeof(BLOCK_SIZE));
       // read file in 512 byte blocks
-      fread(buffer, 1, BLOCK_SIZE, file);
-       
-      // check if the block starts with a JPEG header
-      if (buffer[0]== 0xff && buffer[1]== 0xd8 && buffer[2]== 0xff && (buffer[3] == 0xe0 || buffer[3] == 0xe0))
+      if (fread(&buffer, BLOCK_SIZE, 1, file) == 1)
       {
-          // Generate the file name
-          char title[8];
-          sprintf(title, "%03d.jpg", count);
-  
-          // close if JPEG file is open
-          if (image != NULL) 
-          {
-            fclose(image);
-          }
-  
-          // open file
-          image = fopen(title, "w");
-  
-          // Write the block to JPEG file
-          fwrite(buffer, BLOCK_SIZE, 1, image);
-          
-          // Increment the file number
-          count ++;
+        // check if the block starts with a JPEG header
+        if (buffer[0]== 0xff && buffer[1]== 0xd8 && buffer[2]== 0xff && (buffer[3] == 0xe0 || buffer[3] == 0xe0))
+        {
+            // Generate the file name
+            char title[8];
+            sprintf(title, "%03d.jpg", count);
+    
+            // close if JPEG file is open
+            if (image != NULL) 
+            {
+              fclose(image);
+            }
+    
+            // open file
+            image = fopen(title, "w");
+    
+            // Write the block to JPEG file
+            fwrite(&buffer, BLOCK_SIZE, 1, image);
+            
+            // Increment the file number
+            count ++;
+         }
+         
+         else if (image != NULL)
+         {
+            // Write the block to JPEG file
+            fwrite(&buffer, BLOCK_SIZE, 1, image);
+         }
        }
     }
 
