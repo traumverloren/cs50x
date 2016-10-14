@@ -2,4 +2,4 @@
 
 # C50x Coursework #
 
-My C programs completed for Harvard's CS50 online edX course.
+My C programs submitted for Harvard's [CS50](https://www.edx.org/course/introduction-computer-science-harvardx-cs50x) online edX course.
