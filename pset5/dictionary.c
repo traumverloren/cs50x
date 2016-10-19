@@ -55,12 +55,10 @@ bool check(const char* word)
         // find index value for lookup in children node
         int index = findIndex(word[i]);
     
-        // if NULL, word is misspelled
+        // if child node is NULL, word is misspelled
         if (pointer->children[index] == NULL)
-        {
             return false;
    
-        }
         // else since !NULL, move to next letter by setting pointer to the next node.
         pointer = pointer->children[index];
     }
@@ -125,11 +123,28 @@ unsigned int size(void)
     return wordCount;
 }
 
+bool freeNodes(node* pointer)
+{
+    // unload top to bottom...
+    // free all pointers in children, backwards up, freeing all children up to the root.
+    for (int i = 0; i < 27; i++)
+    {
+        // if pointer's child node isn't NULL, keep going down the rabbit hole...
+        if (pointer->children[i] != NULL)
+            // recursively call our freeNodes method until the lowest possible node is reached.
+            freeNodes(pointer->children[i]);
+    }
+    
+    // once we hit the bottom, free those nodes!
+    free(pointer);
+    
+    return true;
+}
+
 /**
  * Unloads dictionary from memory.  Returns true if successful else false.
  */
 bool unload(void)
 {
-    // TODO
-    return false;
+    return freeNodes(root);
 }
