@@ -36,7 +36,8 @@ int findIndex(const char c)
     }
     else
     {
-        return (c % 'a');
+        // make sure to change any uppercase to lowercase when returning index value
+        return (tolower(c) % 'a');
     }
 }
 
@@ -45,8 +46,27 @@ int findIndex(const char c)
  */
 bool check(const char* word)
 {
-    // TODO
-    return false;
+    // initially set the node pointer to the root
+    node* pointer = root;
+    
+    // check each char in a word til hits the NUL terminator
+    for (int i=0; word[i] !='\0'; i++)
+    {
+        // find index value for lookup in children node
+        int index = findIndex(word[i]);
+    
+        // if NULL, word is misspelled
+        if (pointer->children[index] == NULL)
+        {
+            return false;
+   
+        }
+        // else since !NULL, move to next letter by setting pointer to the next node.
+        pointer = pointer->children[index];
+    }
+    
+    // if at \n,  return value of isWord is true
+    return pointer->isWord;
 }
 
 /**
@@ -64,7 +84,7 @@ bool load(const char* dictionary)
     FILE* fp = fopen(dictionary, "r");
 
     // for every dictionary word, iterate thru the trie
-    for (char c = tolower(fgetc(fp)); c != EOF; c = fgetc(fp))
+    for (char c = fgetc(fp); c != EOF; c = fgetc(fp))
     {
         // at end of word, set isWord to true and reset pointer to root, and add to word count
         if (c == '\n')
@@ -88,12 +108,10 @@ bool load(const char* dictionary)
             
             // set pointer to the next node.
             pointer = pointer->children[index];
-                
         }
     }
     
-    printf("%i", wordCount);
-    
+    // close dictionary file
     fclose(fp);
     
     return true;
