@@ -1,11 +1,40 @@
-0.  TODO
-1.  TODO
-2.  TODO
-3.  TODO
-4.  TODO
-5.  TODO
-6.  TODO
-7.  TODO
-8.  TODO
-9.  TODO
-10. TODO
+0.  What is pneumonoultramicroscopicsilicovolcanoconiosis?
+    It's the longest word in English.
+    
+1.  According to its man page, what does getrusage do?
+    It returns resource usage statistics for either the calling process, children of the calling process, or the calling thread.
+    
+2.  Per that same man page, how many members are in a variable of type struct rusage?
+    There are 16 members (2 structs, 14 longs).
+    
+3.  Why do you think we pass before and after by reference (instead of by value) to calculate, even though we’re not changing their contents?
+    By passing references instead of values, we save time and memory by not creating copies of these on the stack.
+    
+4.  Explain as precisely as possible, in a paragraph or more, how main goes about reading words from a file. In other words, convince us that you indeed understand how that function’s for loop works.
+    It opens a text file. Then, in a for loop, it reads character by character to create a word. It allows words to contain apostrophes and alphabetical characters.
+    It ignores words over the max length of 45 characters and words containing numbers. Then adds word to word count. It then checks if the word
+    is misspelled. If so, adds it to misspelled count and prints the misspelled words.
+
+5. Why do you think we used fgetc to read each word’s characters one at a time rather than use fscanf with a format string like "%s" to read whole words at a time? Put another way, what problems might arise by relying on fscanf alone?
+   fgetc() reads character-by-character from a stream. This will enable us to keep track of the number of chars we read, while using fscanf(), 
+   on the other hand, might get us into trouble if a longer string than we expect was read. fgetc() also allows us to check if a char is a number or other non-allowed characters.
+
+6.  Why do you think we declared the parameters for check and load as const?
+    They are pointers that cannot change. check() and load() do not need to modify the parameters, only read them. 
+    I assume this saves memory allocation and time since they are not copied, only read for these functions.
+
+7.  What data structure(s) did you use to implement your spell-checker? 
+    Be sure not to leave your answer at just "hash table," "trie," or the like. Expound on what’s inside each of your "nodes."
+    I utilized a trie data structure. It's similar in structure to an upside tree. We have a central 'root' node and 'leaf' nodes.
+    Each leaf node has a boolean field to indicate if a word is a complete word or not.
+    Each node also has an array of pointers to other nodes of the same type, in our case, this array has 27 spots for each letter in the alphabet + the apostrophe symbol.
+
+8.  How slow was your code the first time you got it working correctly?
+    Roughly the same performance.
+
+9.  What kinds of changes, if any, did you make to your code in order to improve its performance?
+    I didn't make any changes. I purposely chose a trie structure because it was the most fascinating data structure and completely
+    new to me and I wanted to get more comfortable with it.
+
+10. Do you feel that your code has any bottlenecks that you were not able to chip away at?
+    It would have been interesting to try a hash table structure and compare the differences in performance.
