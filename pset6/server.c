@@ -618,8 +618,34 @@ bool load(FILE* file, BYTE** content, size_t* length)
  */
 const char* lookup(const char* path)
 {
-    // TODO
-    return NULL;
+    // use strchr to go to the dot in the path
+    char *fullFileExtension;
+    char *fileExtension = NULL;
+    
+    if ((fullFileExtension = strchr(path, '.')) != NULL)
+     {
+        fileExtension = fullFileExtension + 1;
+     }
+    
+    // compare what is after the dot to know the file type & return that MIME type
+    if (strcmp(fileExtension, "css") == 0)
+        return "text/css";
+    else if (strcmp(fileExtension, "html") == 0)
+        return "text/html";
+    else if (strcmp(fileExtension, "gif") == 0)
+        return "image/gif";
+    else if (strcmp(fileExtension, "ico") == 0)
+        return "image/x-icon";
+    else if (strcmp(fileExtension, "jpg") == 0)
+        return "image/jpg";
+    else if (strcmp(fileExtension, "js") == 0)
+        return "text/javascript";
+    else if (strcmp(fileExtension, "php") == 0)
+        return "text/x-php";
+    else if (strcmp(fileExtension, "png") == 0)
+        return "image/png";
+    else 
+        return NULL;
 }
 
 /**
