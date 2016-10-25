@@ -68,20 +68,33 @@ char* parse(const char* line, char* abs_path, char* query)
         return "505";
     }
 
-    // get the abs_path, query from requestTarget
+    // get the abs_path and set query if no "?" in requestTarget
     if (strchr(requestTarget, '?') == NULL)
     {
         abs_path = requestTarget;
-        query = NULL;
+        query = "";
         printf("%s\n", abs_path);
         printf("%s\n", query);    
         
         return "123";
     }
     
+    // if requestTarget doesn't have a query tag, set it as null?
+    if (requestTarget[strlen(requestTarget)-1] == '?')
+    {
+        char* abs_pathPointer = strtok(requestTarget, "?");
+        abs_path = strcpy(abs_path, abs_pathPointer);
+        query = "";
+        printf("%s\n", abs_path);
+        printf("%s\n", query);    
+        
+        return "456";
+    }
+    
+    // get the abs_path, query from requestTarget
     char* abs_pathPointer = strtok(requestTarget, "?");
-    char* queryPointer = strtok(NULL, "?");
     abs_path = strcpy(abs_path, abs_pathPointer);
+    char* queryPointer = strtok(NULL, "?");
     query = strcpy(query, queryPointer);
 
         

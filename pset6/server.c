@@ -706,9 +706,18 @@ bool parse(const char* line, char* abs_path, char* query)
     if (strchr(requestTarget, '?') == NULL)
     {
         abs_path = requestTarget;
-        query = NULL;
+        query = "";
     }
     
+    
+    // if requestTarget doesn't have a query tag, set it as ""
+    if (requestTarget[strlen(requestTarget)-1] == '?')
+    {
+        char* abs_pathPointer = strtok(requestTarget, "?");
+        abs_path = strcpy(abs_path, abs_pathPointer);
+        query = "";
+        return true;
+    }
     // get the abs_path, query from requestTarget
     char* abs_pathPointer = strtok(requestTarget, "?");
     char* queryPointer = strtok(NULL, "?");

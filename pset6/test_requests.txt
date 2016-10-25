@@ -1,0 +1,5 @@
+GET /hello.html HTTP/1.1
+
+GET /hello.exe? HTTP/1.1
+
+GET /hello.html?blahhhh HTTP/1.1
