@@ -619,33 +619,32 @@ bool load(FILE* file, BYTE** content, size_t* length)
 const char* lookup(const char* path)
 {
     // use strchr to go to the dot in the path
-    char *fullFileExtension;
-    char *fileExtension = NULL;
+    char* fileExtension;
+
+    fileExtension = strchr(path, '.');
     
-    if ((fullFileExtension = strchr(path, '.')) != NULL)
-     {
-        fileExtension = fullFileExtension + 1;
-     }
-    
-    // compare what is after the dot to know the file type & return that MIME type
-    if (strcmp(fileExtension, "css") == 0)
-        return "text/css";
-    else if (strcmp(fileExtension, "html") == 0)
-        return "text/html";
-    else if (strcmp(fileExtension, "gif") == 0)
-        return "image/gif";
-    else if (strcmp(fileExtension, "ico") == 0)
-        return "image/x-icon";
-    else if (strcmp(fileExtension, "jpg") == 0)
-        return "image/jpg";
-    else if (strcmp(fileExtension, "js") == 0)
-        return "text/javascript";
-    else if (strcmp(fileExtension, "php") == 0)
-        return "text/x-php";
-    else if (strcmp(fileExtension, "png") == 0)
-        return "image/png";
-    else 
-        return NULL;
+    if (fileExtension != NULL)
+    {
+        // compare what is after the dot to know the file type & return that MIME type
+        // strcasecmp ignores case
+        if (strcasecmp(fileExtension, ".css") == 0)
+            return "text/css";
+        else if (strcasecmp(fileExtension, ".html") == 0)
+            return "text/html";
+        else if (strcasecmp(fileExtension, ".gif") == 0)
+            return "image/gif";
+        else if (strcasecmp(fileExtension, ".ico") == 0)
+            return "image/x-icon";
+        else if (strcasecmp(fileExtension, ".jpg") == 0)
+            return "image/jpg";
+        else if (strcasecmp(fileExtension, ".js") == 0)
+            return "text/javascript";
+        else if (strcasecmp(fileExtension, ".php") == 0)
+            return "text/x-php";
+        else if (strcasecmp(fileExtension, ".png") == 0)
+            return "image/png";
+    }
+    return NULL;
 }
 
 /**
@@ -655,9 +654,68 @@ const char* lookup(const char* path)
  */
 bool parse(const char* line, char* abs_path, char* query)
 {
-    // TODO
-    error(501);
-    return false;
+    // example of what needs parsing: 
+    // GET hello.html HTTP/1.1
+    
+    // copy const char line into a new temp variable
+    char temp[strlen(line)];
+    strcpy(temp, line);
+    
+    char* sp = " ";
+    char* methodPointer = strtok(temp, sp);
+    char* requestTargetPointer = strtok(NULL, sp);
+    char* httpPointer = strtok(NULL, sp);
+
+    // have to get these out of pointers and copied into strings so can actually do stuff with them.
+    char method[strlen(methodPointer)];
+    char requestTarget[strlen(requestTargetPointer)];
+    char http[strlen(httpPointer)];
+    strcpy(method, methodPointer);
+    strcpy(requestTarget, requestTargetPointer);
+    strcpy(http, httpPointer);
+    
+    // Ensure that request-line (which is passed into parse as line) is consistent with these rules. If it is not, respond to the browser with 400 Bad Request and return false.
+    // if method is not GET, respond to the browser with 405 Method Not Allowed and return false;
+    if (strcasecmp(method, "GET") != 0)
+    {
+        error(405);
+        return false;
+    }
+    
+    // if request-target does not begin with /, respond to the browser with 501 Not Implemented and return false;
+    if (requestTarget[0] != '/')
+    {
+        error(501);
+        return false;
+    }
+    
+    // if request-target contains a ", respond to the browser with 400 Bad Request and return false;
+    if (strchr(requestTarget, '"') != NULL)
+    {
+        error(400);
+        return false;    }
+    
+    // if HTTP-version is not HTTP/1.1, respond to the browser with 505 HTTP Version Not Supported and return false.
+    if (strcasecmp(http, "HTTP/1.1") != 0)
+    {
+        error(505);
+        return false;
+    }
+    
+    // if requestTarget doesn't have a query tag, set it as null?
+    if (strchr(requestTarget, '?') == NULL)
+    {
+        abs_path = requestTarget;
+        query = NULL;
+    }
+    
+    // get the abs_path, query from requestTarget
+    char* abs_pathPointer = strtok(requestTarget, "?");
+    char* queryPointer = strtok(NULL, "?");
+    abs_path = strcpy(abs_path, abs_pathPointer);
+    query = strcpy(query, queryPointer);
+
+    return true;
 }
 
 /**
