@@ -1,3 +1,14 @@
+// feature test macro requirements
+#define _GNU_SOURCE
+#define _XOPEN_SOURCE 700
+#define _XOPEN_SOURCE_EXTENDED
+
+// limits on an HTTP request's size, based on Apache's
+// http://httpd.apache.org/docs/2.2/mod/core.html
+#define LimitRequestFields 50
+#define LimitRequestFieldSize 4094
+#define LimitRequestLine 8190
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,32 +35,30 @@ char* parse(const char* line, char* abs_path, char* query)
     // example of what needs parsing: 
     // GET hello.html HTTP/1.1
     
-    // copy const char line into a new temp variable
-    char temp[strlen(line)];
-    strcpy(temp, line);
+        // no double spaces allowed!
+    if (strstr(line, "  ") != NULL)
+    {
+        return "400";
+    }
     
-    char* sp = " ";
-    char* methodPointer = strtok(temp, sp);
-    char* requestTargetPointer = strtok(NULL, sp);
-    char* httpPointer = strtok(NULL, sp);
-
-    // have to get these out of pointers and copied into strings so can actually do stuff with them.
-    char method[strlen(methodPointer)];
-    char requestTarget[strlen(requestTargetPointer)];
-    char http[strlen(httpPointer)];
-    strcpy(method, methodPointer);
-    strcpy(requestTarget, requestTargetPointer);
-    strcpy(http, httpPointer);
+    // copy const char line into a new temp variable
+    char* temp = strdup(line);
+    
+    char* method = strtok(temp, " ");
+    char* requestTarget = strtok(NULL, " ");
+    char* http = strtok(NULL, "\r\n");
     
     printf("method: %s\nrequestTarget: %s\nhttp:%s\n", method, requestTarget, http);
     
+    printf("%c\n", requestTarget[0]);
+    
     // Ensure that request-line (which is passed into parse as line) is consistent with these rules. If it is not, respond to the browser with 400 Bad Request and return false.
     // if method is not GET, respond to the browser with 405 Method Not Allowed and return false;
-    if (strcasecmp(method, "GET") != 0)
+    if (strcmp(method, "GET") != 0) 
     {
         return "405";
     }
-
+    
     // if request-target does not begin with /, respond to the browser with 501 Not Implemented and return false;
     if (requestTarget[0] != '/')
     {
@@ -68,38 +77,40 @@ char* parse(const char* line, char* abs_path, char* query)
         return "505";
     }
 
-    // get the abs_path and set query if no "?" in requestTarget
-    if (strchr(requestTarget, '?') == NULL)
-    {
-        abs_path = requestTarget;
-        query = "";
-        printf("%s\n", abs_path);
-        printf("%s\n", query);    
-        
-        return "123";
-    }
+    // set temp abs_path and query pointers
+    char* abs_path_temp = strtok(requestTarget, "?");
+    char* query_temp = strtok(NULL, "?");
     
-    // if requestTarget doesn't have a query tag, set it as null?
-    if (requestTarget[strlen(requestTarget)-1] == '?')
-    {
-        char* abs_pathPointer = strtok(requestTarget, "?");
-        abs_path = strcpy(abs_path, abs_pathPointer);
-        query = "";
-        printf("%s\n", abs_path);
-        printf("%s\n", query);    
-        
-        return "456";
-    }
+    strcpy(abs_path, abs_path_temp);
     
-    // get the abs_path, query from requestTarget
-    char* abs_pathPointer = strtok(requestTarget, "?");
-    abs_path = strcpy(abs_path, abs_pathPointer);
-    char* queryPointer = strtok(NULL, "?");
-    query = strcpy(query, queryPointer);
+    printf("%s\n", abs_path_temp);
 
+    if (query_temp == NULL)
+    {
+        strcpy(query, "\0");
+    }
+    else
+    {
+        strcpy(query, query_temp);
+    }
+    
+        printf("%s\n", query);    
+
+
+    // get the abs_path and set query if no "?" in requestTarget
+    // if (strchr(requestTarget, '?') == NULL)
+    // {
+    //     abs_path = requestTarget;
+    //     query = "";
+    //     printf("%s\n", abs_path);
+    //     printf("%s\n", query);    
         
-    printf("%s\n", abs_path);
-    printf("%s\n", query);    
+    //     return "123";
+    // }
+    
+   
+    // printf("%s\n", abs_path);
+    // printf("%s\n", query);    
     return "done";
 
 }

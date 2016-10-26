@@ -609,8 +609,55 @@ void list(const char* path)
  */
 bool load(FILE* file, BYTE** content, size_t* length)
 {
-    // TODO
-    return false;
+    if (file == NULL)
+    {
+        return false;
+    }
+    
+    // do stuff here to initialize any temp var & content/length?
+    // initialize content and its length
+    *content = NULL;
+    *length = 0;
+    
+    // create a array to store the 512 bytes in FAT block size
+    BYTE block[BYTES];
+    
+    // reads all available bytes from file -- read each byte of 512 bytes until EOF reached
+    while (fread(block, 1, BYTES, file) == 1)
+    {
+        int bytes = fread(block, 1, BYTES, file);
+        // stores those bytes contiguously in dynamically allocated memory on the heap,
+        // stores the address of the first of those bytes in *content, and
+        // stores the number of bytes in *length.
+        
+        if (bytes < 0)
+        {
+            if (*content != NULL)
+            {
+                free(*content);
+                *content = NULL;
+            }
+            *length = 0;
+            break;
+        }
+        
+        // append bytes to content, if bytes read... 
+        if (bytes > 0)
+        {
+            *content = realloc(*content, *length + bytes + 1);
+            
+            if (*content == NULL)
+            {
+                *length = 0;
+                break;
+            }
+            
+            memcpy(*content + *length, block, bytes);
+            *length += bytes;
+        }
+    
+    }
+    return true;
 }
 
 /**
@@ -657,30 +704,19 @@ bool parse(const char* line, char* abs_path, char* query)
     // example of what needs parsing: 
     // GET hello.html HTTP/1.1
     
-    // copy const char line into a new temp variable
-    char temp[strlen(line)];
-    strcpy(temp, line);
-    
-    char* sp = " ";
-    char* methodPointer = strtok(temp, sp);
-    char* requestTargetPointer = strtok(NULL, sp);
-    char* httpPointer = strtok(NULL, sp);
-
-    // have to get these out of pointers and copied into strings so can actually do stuff with them.
-    char method[strlen(methodPointer)];
-    char requestTarget[strlen(requestTargetPointer)];
-    char http[strlen(httpPointer)];
-    strcpy(method, methodPointer);
-    strcpy(requestTarget, requestTargetPointer);
-    strcpy(http, httpPointer);
-    
-    // Ensure that request-line (which is passed into parse as line) is consistent with these rules. If it is not, respond to the browser with 400 Bad Request and return false.
-    // if method is not GET, respond to the browser with 405 Method Not Allowed and return false;
-    if (strcasecmp(method, "GET") != 0)
+    // no double spaces allowed!
+    if (strstr(line, "  ") != NULL)
     {
-        error(405);
+        error(400);
         return false;
     }
+    
+    // copy const char line into a new temp variable
+    char* temp = strdup(line);
+    
+    char* method = strtok(temp, " ");
+    char* requestTarget = strtok(NULL, " ");
+    char* http = strtok(NULL, "\r\n");
     
     // if request-target does not begin with /, respond to the browser with 501 Not Implemented and return false;
     if (requestTarget[0] != '/')
@@ -688,12 +724,21 @@ bool parse(const char* line, char* abs_path, char* query)
         error(501);
         return false;
     }
+
+    // Ensure that request-line (which is passed into parse as line) is consistent with these rules. If it is not, respond to the browser with 400 Bad Request and return false.
+    // if method is not GET, respond to the browser with 405 Method Not Allowed and return false;
+    if (strcmp(method, "GET") != 0) 
+    {
+        error(405);
+        return false;
+    }
     
     // if request-target contains a ", respond to the browser with 400 Bad Request and return false;
     if (strchr(requestTarget, '"') != NULL)
     {
         error(400);
-        return false;    }
+        return false;
+    }
     
     // if HTTP-version is not HTTP/1.1, respond to the browser with 505 HTTP Version Not Supported and return false.
     if (strcasecmp(http, "HTTP/1.1") != 0)
@@ -702,28 +747,24 @@ bool parse(const char* line, char* abs_path, char* query)
         return false;
     }
     
-    // if requestTarget doesn't have a query tag, set it as null?
-    if (strchr(requestTarget, '?') == NULL)
-    {
-        abs_path = requestTarget;
-        query = "";
-    }
+    // set temp abs_path and query pointers
+    char* abs_path_temp = strtok(requestTarget, "?");
+    char* query_temp = strtok(NULL, "?");
     
+    // now copy data over to existing pointer
+    strcpy(abs_path, abs_path_temp);
     
-    // if requestTarget doesn't have a query tag, set it as ""
-    if (requestTarget[strlen(requestTarget)-1] == '?')
+    if (query_temp == NULL)
     {
-        char* abs_pathPointer = strtok(requestTarget, "?");
-        abs_path = strcpy(abs_path, abs_pathPointer);
-        query = "";
-        return true;
+        strcpy(query, "\0");
     }
-    // get the abs_path, query from requestTarget
-    char* abs_pathPointer = strtok(requestTarget, "?");
-    char* queryPointer = strtok(NULL, "?");
-    abs_path = strcpy(abs_path, abs_pathPointer);
-    query = strcpy(query, queryPointer);
+    else
+    {
+        strcpy(query, query_temp);
+    }
 
+    free(temp);
+    
     return true;
 }
 
