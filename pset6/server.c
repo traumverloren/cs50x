@@ -608,55 +608,42 @@ void list(const char* path)
  * Stores address thereof in *content and length thereof in *length.
  */
 bool load(FILE* file, BYTE** content, size_t* length)
-{
+{   
     if (file == NULL)
     {
         return false;
     }
-    
-    // do stuff here to initialize any temp var & content/length?
-    // initialize content and its length
+
     *content = NULL;
     *length = 0;
-    
-    // create a array to store the 512 bytes in FAT block size
     BYTE block[BYTES];
-    
-    // reads all available bytes from file -- read each byte of 512 bytes until EOF reached
-    while (fread(block, 1, BYTES, file) == 1)
+
+    while(true)
     {
-        int bytes = fread(block, 1, BYTES, file);
-        // stores those bytes contiguously in dynamically allocated memory on the heap,
-        // stores the address of the first of those bytes in *content, and
-        // stores the number of bytes in *length.
+    
+        // On success, fread() will return the number of items read or written. 
+        // This number equals the number of bytes transferred only when size is 1
+        int bytesRead = fread(&block, 1, 1, file);
         
-        if (bytes < 0)
+        // append bytes to content 
+        // reallocate memory for another byte read each time...
+        *content = realloc(*content, *length  + bytesRead);
+        if (content == NULL)
         {
-            if (*content != NULL)
-            {
-                free(*content);
-                *content = NULL;
-            }
-            *length = 0;
+            *length = 0; 
             break;
         }
         
-        // append bytes to content, if bytes read... 
-        if (bytes > 0)
-        {
-            *content = realloc(*content, *length + bytes + 1);
-            
-            if (*content == NULL)
-            {
-                *length = 0;
-                break;
-            }
-            
-            memcpy(*content + *length, block, bytes);
-            *length += bytes;
-        }
+        // The memcpy() function copies n bytes (bytesREAD) from memory area block to memory area *content + *length. 
+        // The memory areas must not overlap.
+        memcpy(*content + *length, block, bytesRead);
+        *length += bytesRead;
     
+        // once reaches end of file, STOP
+        if (feof(file))
+            break;
     }
+    
     return true;
 }
 
@@ -683,7 +670,7 @@ const char* lookup(const char* path)
         else if (strcasecmp(fileExtension, ".ico") == 0)
             return "image/x-icon";
         else if (strcasecmp(fileExtension, ".jpg") == 0)
-            return "image/jpg";
+            return "image/jpeg";
         else if (strcasecmp(fileExtension, ".js") == 0)
             return "text/javascript";
         else if (strcasecmp(fileExtension, ".php") == 0)
