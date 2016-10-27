@@ -444,7 +444,37 @@ char* htmlspecialchars(const char* s)
  */
 char* indexes(const char* path)
 {
-    // TODO
+    // create strings for the php & html indexes
+    char* php_suffix = "index.php";
+    char* html_suffix = "index.html";
+    
+    // create index path and allocate memory and build full paths
+    char* index_php = malloc(strlen(path) + strlen(php_suffix) + 1);
+    strcpy(index_php, path);
+    strcat(index_php, php_suffix);
+
+    char* index_html = malloc(strlen(path) + strlen(html_suffix) + 1);
+    strcpy(index_html, path);
+    strcat(index_html, html_suffix);
+
+    // printf("%s\n", index_php);
+    // printf("%s\n", index_html);
+
+    // if php or html path exists, return it, otherwise return NULL.
+    if (access(index_php, F_OK) == 0)
+    {
+        free(index_html);
+        return index_php;
+    }
+    
+    else if (access(index_html, F_OK) == 0)
+    {
+        free(index_php);
+        return index_html;
+    }
+    
+    free(index_html);
+    free(index_php);
     return NULL;
 }
 
