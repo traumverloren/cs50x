@@ -1,5 +1,5 @@
-<h1><?= $name ?> (<?= $symbol ?>)</h1>
-<h3>Current Price: <?= number_format($price, 2, '.', ''); ?></h3>
+<h1><?= $name ?> (<?= strtoupper($symbol) ?>)</h1>
+<h3>Current Price: <?= "$ ".number_format($price, 2);  ?></h3>
 <br />
 <br />
 <div>

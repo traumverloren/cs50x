@@ -45,3 +45,7 @@
     /* surround with whitespace */
     margin: 20px;
 }
+
+table{
+    text-align: left;
+}
