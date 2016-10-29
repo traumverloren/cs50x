@@ -36,7 +36,7 @@
         // if we found user, check password
         if (count($rows) == 1)
         {
-            // first (and only) row
+            // if row found, it will be the first (and only) row
             $row = $rows[0];
             $id = $rows[0]["id"];
         
