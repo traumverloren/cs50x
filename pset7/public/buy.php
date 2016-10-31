@@ -49,7 +49,9 @@
         // deduct stock costs from user's cash
         CS50::query("UPDATE users SET cash = cash - $cost WHERE id = ?", $_SESSION["id"]);
 
-        
+        // create a record in history table
+        CS50::query("INSERT INTO history (user_id, symbol, shares, price, transaction_type) VALUES(?, ?, ?, ?, ?)", $_SESSION["id"], strtoupper($_POST["symbol"]), $_POST["shares"], $price, "BUY");
+
         // redirect to portfolio
         redirect("/");
 
