@@ -74,7 +74,23 @@ $(function() {
  */
 function addMarker(place)
 {
-    // TODO
+    var image = {
+          url: 'https://maps.google.com/mapfiles/kml/pal4/icon8.png',
+          // The origin for this image is (0, 0).
+          origin: new google.maps.Point(0, 0),
+          // The anchor for this image is the base of the flagpole at (0, 32).
+          anchor: new google.maps.Point(0, 32)
+        };
+        
+    var marker = new MarkerWithLabel({
+        position: {lat: parseFloat(place["latitude"]), lng: parseFloat(place["longitude"])},
+        icon: image,
+        map: map,
+        labelContent : `${place['place_name']}, ${place['admin_name1']}`,
+        labelAnchor : new google.maps.Point(0, 0),
+        labelClass : "label", // the CSS class for the label
+        labelInBackground : false
+     });
 }
 
 /**
