@@ -18,6 +18,36 @@ var markers = [];
 // info window
 var info = new google.maps.InfoWindow();
 
+
+/**
+ * Personal Touch Feature - Added Geolocation!
+ */
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+    };
+    
+    info.setPosition(pos);
+    info.setContent('Location found.');
+    map.setCenter(pos);
+    }, function() {
+        handleLocationError(true, info, map.getCenter());
+    });
+} else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, info, map.getCenter());
+}
+
+function handleLocationError(browserHasGeolocation, info, pos) {
+    info.setPosition(pos);
+    info.setContent(browserHasGeolocation ?
+        'Error: The Geolocation service failed.' :
+        'Error: Your browser doesn\'t support geolocation.');
+}
+
+
 // execute when the DOM is fully loaded
 $(function() {
 
@@ -65,8 +95,8 @@ $(function() {
     map = new google.maps.Map(canvas, options);
 
     // configure UI once Google Map is idle (i.e., loaded)
-    google.maps.event.addListenerOnce(map, "idle", configure);
-
+    google.maps.event.addListenerOnce(map, "idle", configure);        
+    
 });
 
 /**
@@ -134,7 +164,6 @@ function addMarker(place)
     
     });
     
-    console.log(markers);
 }
 
 /**
