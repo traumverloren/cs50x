@@ -92,6 +92,8 @@ function addMarker(place)
         labelInBackground : false
      });
     
+    markers.push(marker);
+    
     marker.addListener('click', function() {
             
         // get places matching query (asynchronously)
@@ -102,7 +104,8 @@ function addMarker(place)
         // make the call to articles to get the unordered list of articles with links.
         $.getJSON("articles.php", parameters)
         .done(function(data, textStatus, jqXHR) {
-            articles = "<ul>";
+
+            var articles = "<ul>";
             
             // for each news article, add a list item with the title and link.
             for (var i = 0; i < data.length; i++)
@@ -112,7 +115,12 @@ function addMarker(place)
             
             // close unordered list.
             articles += "</ul>";
-        
+
+            if (articles.length == 0)
+            {
+                articles = "No news found for this location."
+            }
+                    
             // finally, create the info window.
             showInfo(marker, articles);
 
@@ -125,6 +133,8 @@ function addMarker(place)
         });
     
     });
+    
+    console.log(markers);
 }
 
 /**
@@ -209,7 +219,7 @@ function hideInfo()
  */
 function removeMarkers()
 {
-    // TODO
+    markers.length = 0;
 }
 
 /**
@@ -241,10 +251,10 @@ function showInfo(marker, content)
 {
     // start div
     var div = "<div id='info'>";
-    if (content == "<ul></ul>")
+    if (typeof(content) === "undefined")
     {
         // http://www.ajaxload.info/
-        div += "No news available for this location.";
+        div += "<img alt='loading' src='img/ajax-loader.gif'/>";
     }
     else
     {
