@@ -75,12 +75,12 @@ $(function() {
 function addMarker(place)
 {
     var image = {
-          url: 'https://maps.google.com/mapfiles/kml/pal4/icon8.png',
-          // The origin for this image is (0, 0).
-          origin: new google.maps.Point(0, 0),
-          // The anchor for this image is the base of the flagpole at (0, 32).
-          anchor: new google.maps.Point(0, 32)
-        };
+        url: 'https://maps.google.com/mapfiles/kml/pal4/icon8.png',
+        // The origin for this image is (0, 0).
+        origin: new google.maps.Point(0, 0),
+        // The anchor for this image is the base of the flagpole at (0, 32).
+        anchor: new google.maps.Point(0, 32)
+    };
         
     var marker = new MarkerWithLabel({
         position: {lat: parseFloat(place["latitude"]), lng: parseFloat(place["longitude"])},
@@ -91,6 +91,40 @@ function addMarker(place)
         labelClass : "label", // the CSS class for the label
         labelInBackground : false
      });
+    
+    marker.addListener('click', function() {
+            
+        // get places matching query (asynchronously)
+        var parameters = {
+            geo: `${place["place_name"]}, ${place["admin_name1"]}`
+        };
+        
+        // make the call to articles to get the unordered list of articles with links.
+        $.getJSON("articles.php", parameters)
+        .done(function(data, textStatus, jqXHR) {
+            articles = "<ul>";
+            
+            // for each news article, add a list item with the title and link.
+            for (var i = 0; i < data.length; i++)
+            {
+                articles += `<li><a href="${data[i]["link"]}">${data[i]["title"]}</a></li>`;
+            }
+            
+            // close unordered list.
+            articles += "</ul>";
+        
+            // finally, create the info window.
+            showInfo(marker, articles);
+
+        
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+    
+            // log error to browser's console
+            console.log(errorThrown.toString());
+        });
+    
+    });
 }
 
 /**
@@ -207,10 +241,10 @@ function showInfo(marker, content)
 {
     // start div
     var div = "<div id='info'>";
-    if (typeof(content) === "undefined")
+    if (content == "<ul></ul>")
     {
         // http://www.ajaxload.info/
-        div += "<img alt='loading' src='img/ajax-loader.gif'/>";
+        div += "No news available for this location.";
     }
     else
     {
