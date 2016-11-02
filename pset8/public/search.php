@@ -4,10 +4,13 @@
 
     $query = preg_split("/[\s,+]+/", $_GET["geo"]);
     
+    // if it's a zip code, set the search_string as only the zip code
     if (is_numeric($query[0]))
     {
         $search_string = $query[0];
     }
+    
+    // for all other instances, stitch together for the fulltext search
     else
     {
         $query = preg_filter('/^/', '+', $query);
@@ -17,7 +20,7 @@
     // numerically indexed array of places
     $places = [];
 
-    // TODO: search database for places matching $_GET["geo"], store in $places
+    // search database for places matching $_GET["geo"], store in $places
     $rows = CS50::query("SELECT * FROM places WHERE postal_code = ? OR
                             MATCH (place_name, admin_name1) AGAINST (? IN BOOLEAN MODE)", $search_string, $search_string);
     foreach ($rows as $row)
